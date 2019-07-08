@@ -3,9 +3,23 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"regexp"
 )
 
 const DEADBOLT_VERSION = "201907081400"
+
+func main() {
+	http.HandleFunc("/", defaultHandler)
+	http.HandleFunc("/unlock", deadboltHandler)
+	http.HandleFunc("/lock", deadboltHandler)
+
+	port := ":8080"
+	fmt.Println("listening on port", port)
+
+	if err := http.ListenAndServe(port, nil); err != nil {
+		panic(err)
+	}
+}
 
 func defaultHandler(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
@@ -27,15 +41,21 @@ func deadboltHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(path + "\n"))
 }
 
-func main() {
-	http.HandleFunc("/", defaultHandler)
-	http.HandleFunc("/unlock", deadboltHandler)
-	http.HandleFunc("/lock", deadboltHandler)
+func toggle(m, s string) string {
+	setting := "PermitRootLogin"
+	match, _ := regexp.Match(`PermitRootLogin`, []byte(s))
 
-	port := ":8080"
-	fmt.Println("listening on port", port)
+	if !match {
+		return s
+	}
 
-	if err := http.ListenAndServe(port, nil); err != nil {
-		panic(err)
+	switch m {
+	case "lock":
+		return setting + " no"
+	case "unlock":
+		return setting + " yes"
+	default:
+		panic("unhandled toggle method: " + m)
+
 	}
 }
