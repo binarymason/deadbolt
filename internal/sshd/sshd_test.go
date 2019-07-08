@@ -1,4 +1,4 @@
-package main
+package sshd
 
 import (
 	"fmt"
@@ -78,7 +78,7 @@ func TestToggle(t *testing.T) {
 	Assert(r, x, t)
 }
 
-func TestLockSSHConfig(t *testing.T) {
+func TestLockConfig(t *testing.T) {
 	var (
 		cfg string
 		r   string
@@ -106,7 +106,7 @@ baz bang
 PermitRootLogin no
 booger
   `
-	r = lockSSHConfig(cfg)
+	r = lockConfig(cfg)
 	Assert(r, x, t)
 
 	When("locking")
@@ -120,12 +120,12 @@ baz bang
 PermitRootLogin yes
 booger
   `
-	r = lockSSHConfig(cfg)
+	r = lockConfig(cfg)
 	Assert(r, x, t)
 
 }
 
-func TestUnlockSSHConfig(t *testing.T) {
+func TestUnlockConfig(t *testing.T) {
 	var (
 		cfg string
 		r   string
@@ -153,7 +153,7 @@ baz bang
 PermitRootLogin yes
 booger
   `
-	r = unlockSSHConfig(cfg)
+	r = unlockConfig(cfg)
 	Assert(r, x, t)
 
 	When("unlocking")
@@ -168,6 +168,6 @@ baz bang
 PermitRootLogin yes
 booger
   `
-	r = unlockSSHConfig(cfg)
+	r = unlockConfig(cfg)
 	Assert(r, x, t)
 }
