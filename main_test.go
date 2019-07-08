@@ -77,3 +77,97 @@ func TestToggle(t *testing.T) {
 	x = "PermitRootLogin yes"
 	Assert(r, x, t)
 }
+
+func TestLockSSHConfig(t *testing.T) {
+	var (
+		cfg string
+		r   string
+		x   string
+	)
+
+	Given("lines of text")
+	When("locking")
+	And("PermitRootLogin is yes")
+	Then("it should return lines of text")
+	And("PermitRootLogin should be set to no")
+
+	cfg = `
+foo
+bar
+baz bang
+PermitRootLogin yes
+booger
+  `
+
+	x = `
+foo
+bar
+baz bang
+PermitRootLogin no
+booger
+  `
+	r = lockSSHConfig(cfg)
+	Assert(r, x, t)
+
+	When("locking")
+	And("PermitRootLogin is already no")
+	Then("it should return lines of text")
+	And("PermitRootLogin should be set to no")
+	cfg = `
+foo
+bar
+baz bang
+PermitRootLogin yes
+booger
+  `
+	r = lockSSHConfig(cfg)
+	Assert(r, x, t)
+
+}
+
+func TestUnlockSSHConfig(t *testing.T) {
+	var (
+		cfg string
+		r   string
+		x   string
+	)
+
+	Given("lines of text")
+	When("unlocking")
+	And("PermitRootLogin is no")
+	Then("it should return lines of text")
+	And("PermitRootLogin should be set to yes")
+
+	cfg = `
+foo
+bar
+baz bang
+PermitRootLogin no
+booger
+  `
+
+	x = `
+foo
+bar
+baz bang
+PermitRootLogin yes
+booger
+  `
+	r = unlockSSHConfig(cfg)
+	Assert(r, x, t)
+
+	When("unlocking")
+	And("PermitRootLogin is already yes")
+	Then("it should return lines of text")
+	And("PermitRootLogin should be set to yes")
+
+	cfg = `
+foo
+bar
+baz bang
+PermitRootLogin yes
+booger
+  `
+	r = unlockSSHConfig(cfg)
+	Assert(r, x, t)
+}
