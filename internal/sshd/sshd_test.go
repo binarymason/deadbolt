@@ -1,34 +1,10 @@
 package sshd
 
 import (
-	"fmt"
 	"testing"
+
+	. "github.com/binarymason/go-deadbolt/internal/testhelpers"
 )
-
-func Given(s string) {
-	fmt.Println("Given", s)
-}
-
-func When(s string) {
-	fmt.Println("  When", s)
-}
-
-func Then(s string) {
-	fmt.Println("    Then", s)
-}
-
-func And(s string) {
-	fmt.Println("    And", s)
-}
-
-func Assert(a, x string, t *testing.T) {
-
-	a = fmt.Sprintf("%v", a)
-	x = fmt.Sprintf("%v", x)
-	if a != x {
-		t.Errorf("Expected %s, but got: %s", x, a)
-	}
-}
 
 func TestToggle(t *testing.T) {
 	var (
