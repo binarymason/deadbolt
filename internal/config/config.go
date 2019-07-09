@@ -9,11 +9,12 @@ import (
 )
 
 type Config struct {
+	Port        string   `yaml:"port"`
 	Secret      string   `yaml:"deadbolt_secret"`
 	Whitelisted []string `yaml:"whitelisted_clients"`
 }
 
-func load(p string) Config {
+func Load(p string) Config {
 	c := Config{}
 	yamlFile, err := ioutil.ReadFile(p)
 	if err != nil {

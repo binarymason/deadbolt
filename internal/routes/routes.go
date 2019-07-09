@@ -1,21 +1,35 @@
 package routes
 
-import "net/http"
+import (
+	"net/http"
 
-// TODO: move to a VERSION file.
-const DEADBOLT_VERSION = "201907081400"
+	"github.com/binarymason/go-deadbolt/internal/config"
+)
 
-func Default(w http.ResponseWriter, r *http.Request) {
+type Router struct {
+	Config  config.Config
+	Version string
+}
+
+func (rtr *Router) Port() string {
+	p := ":"
+	if rtr.Config.Port != "" {
+		return p + rtr.Config.Port
+	}
+	return p + "8080"
+}
+
+func (rtr *Router) Default(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 
 	if path != "/" {
 		http.Error(w, "invalid route", http.StatusNotFound)
 		return
 	}
-	w.Write([]byte("Deadbolt version: " + DEADBOLT_VERSION + "\n"))
+	w.Write([]byte("Deadbolt version: " + rtr.Version + "\n"))
 }
 
-func Deadbolt(w http.ResponseWriter, r *http.Request) {
+func (rtr *Router) Deadbolt(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 
 	if r.Method != http.MethodPost {
