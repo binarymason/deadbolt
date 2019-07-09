@@ -3,14 +3,14 @@ package main
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/binarymason/go-deadbolt/internal/routes"
 )
 
-const DEADBOLT_VERSION = "201907081400"
-
 func main() {
-	http.HandleFunc("/", defaultHandler)
-	http.HandleFunc("/unlock", deadboltHandler)
-	http.HandleFunc("/lock", deadboltHandler)
+	http.HandleFunc("/", routes.Default)
+	http.HandleFunc("/unlock", routes.Deadbolt)
+	http.HandleFunc("/lock", routes.Deadbolt)
 
 	port := ":8080"
 	fmt.Println("listening on port", port)
@@ -18,24 +18,4 @@ func main() {
 	if err := http.ListenAndServe(port, nil); err != nil {
 		panic(err)
 	}
-}
-
-func defaultHandler(w http.ResponseWriter, r *http.Request) {
-	path := r.URL.Path
-
-	if path != "/" {
-		http.Error(w, "invalid route", http.StatusNotFound)
-		return
-	}
-	w.Write([]byte("Deadbolt version: " + DEADBOLT_VERSION + "\n"))
-}
-
-func deadboltHandler(w http.ResponseWriter, r *http.Request) {
-	path := r.URL.Path
-
-	if r.Method != http.MethodPost {
-		http.Error(w, "invalid HTTP method. expected POST", http.StatusBadRequest)
-		return
-	}
-	w.Write([]byte(path + "\n"))
 }
