@@ -3,7 +3,7 @@ package sshd
 import (
 	"testing"
 
-	. "github.com/binarymason/go-deadbolt/internal/testhelpers"
+	. "github.com/binarymason/deadbolt/internal/testhelpers"
 )
 
 func TestToggle(t *testing.T) {

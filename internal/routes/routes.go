@@ -3,7 +3,7 @@ package routes
 import (
 	"net/http"
 
-	"github.com/binarymason/go-deadbolt/internal/config"
+	"github.com/binarymason/deadbolt/internal/config"
 )
 
 type Router struct {

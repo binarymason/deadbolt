@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/binarymason/go-deadbolt/internal/config"
-	"github.com/binarymason/go-deadbolt/internal/routes"
+	"github.com/binarymason/deadbolt/internal/config"
+	"github.com/binarymason/deadbolt/internal/routes"
 )
 
 const DEADBOLT_VERSION = "201907081400"

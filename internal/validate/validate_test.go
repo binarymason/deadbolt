@@ -3,8 +3,8 @@ package validate
 import (
 	"testing"
 
-	"github.com/binarymason/go-deadbolt/internal/config"
-	. "github.com/binarymason/go-deadbolt/internal/testhelpers"
+	"github.com/binarymason/deadbolt/internal/config"
+	. "github.com/binarymason/deadbolt/internal/testhelpers"
 )
 
 func TestValidRequest(t *testing.T) {

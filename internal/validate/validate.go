@@ -1,6 +1,6 @@
 package validate
 
-import "github.com/binarymason/go-deadbolt/internal/config"
+import "github.com/binarymason/deadbolt/internal/config"
 
 func validRequest(ip, auth string, cfg config.Config) bool {
 	return validIP(ip, cfg.Whitelisted) && validAuth(auth, cfg.Secret)

@@ -3,8 +3,8 @@ package routes
 import (
 	"testing"
 
-	"github.com/binarymason/go-deadbolt/internal/config"
-	. "github.com/binarymason/go-deadbolt/internal/testhelpers"
+	"github.com/binarymason/deadbolt/internal/config"
+	. "github.com/binarymason/deadbolt/internal/testhelpers"
 )
 
 func TestPort(t *testing.T) {
