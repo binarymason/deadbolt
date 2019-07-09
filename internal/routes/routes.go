@@ -12,11 +12,11 @@ type Router struct {
 }
 
 func (rtr *Router) Port() string {
-	p := ":"
+	p := "8080"
 	if rtr.Config.Port != "" {
-		return p + rtr.Config.Port
+		p = rtr.Config.Port
 	}
-	return p + "8080"
+	return ":" + p
 }
 
 func (rtr *Router) Default(w http.ResponseWriter, r *http.Request) {
