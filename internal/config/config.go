@@ -1,8 +1,8 @@
 package config
 
 import (
+	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 
 	"gopkg.in/yaml.v2"
@@ -18,11 +18,11 @@ func Load(p string) Config {
 	c := Config{}
 	yamlFile, err := ioutil.ReadFile(p)
 	if err != nil {
-		log.Printf("yamlFile.Get err   #%v ", err)
+		panic(fmt.Sprintf("yamlFile.Get err   #%v ", err))
 	}
 	err = yaml.Unmarshal(yamlFile, &c)
 	if err != nil {
-		log.Fatalf("Unmarshal: %v", err)
+		panic(fmt.Sprintf("Unmarshal: %v", err))
 	}
 
 	// DEADBOLT_SECRET takes precedence over config file

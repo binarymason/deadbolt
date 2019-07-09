@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"net/http"
 
@@ -10,12 +11,21 @@ import (
 
 const DEADBOLT_VERSION = "201907081400"
 
-func main() {
-	router := routes.Router{
-		Version: DEADBOLT_VERSION,
-		Config:  config.Load("./testdata/simple_deadbolt_config.yml"),
-	}
+var router routes.Router
 
+// Load the deadbolt.yml config file.
+// If a file path is not specified, defaults to /etc/deadbolt/deadbolt.yml
+func init() {
+	c := flag.String("c", "/etc/deadbolt/deadbolt.yml", "Specify deadbolt.yml file")
+	flag.Parse()
+
+	router = routes.Router{
+		Version: DEADBOLT_VERSION,
+		Config:  config.Load(*c),
+	}
+}
+
+func main() {
 	http.HandleFunc("/", router.Default)
 	http.HandleFunc("/unlock", router.Deadbolt)
 	http.HandleFunc("/lock", router.Deadbolt)
