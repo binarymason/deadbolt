@@ -2,8 +2,10 @@ package routes
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/binarymason/deadbolt/internal/config"
+	"github.com/binarymason/deadbolt/internal/validate"
 )
 
 type Router struct {
@@ -20,9 +22,9 @@ func (rtr *Router) Port() string {
 }
 
 func (rtr *Router) Default(w http.ResponseWriter, r *http.Request) {
-	path := r.URL.Path
+	rq := parseRequest(r)
 
-	if path != "/" {
+	if rq.path != "/" {
 		http.Error(w, "invalid route", http.StatusNotFound)
 		return
 	}
@@ -30,11 +32,33 @@ func (rtr *Router) Default(w http.ResponseWriter, r *http.Request) {
 }
 
 func (rtr *Router) Deadbolt(w http.ResponseWriter, r *http.Request) {
-	path := r.URL.Path
-
+	rq := parseRequest(r)
 	if r.Method != http.MethodPost {
 		http.Error(w, "invalid HTTP method. expected POST", http.StatusBadRequest)
 		return
 	}
-	w.Write([]byte(path + "\n"))
+
+	if !validate.ValidRequest(rq.ip, rq.auth, rtr.Config) {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	w.Write([]byte(rq.path + "\n"))
+}
+
+type request struct {
+	ip   string
+	auth string
+	path string
+}
+
+func parseRequest(r *http.Request) *request {
+	rq := request{
+		ip:   strings.Split(r.RemoteAddr, ":")[0], // remove port
+		auth: r.Header.Get("Authorization"),
+		path: r.URL.Path,
+	}
+
+	return &rq
 }

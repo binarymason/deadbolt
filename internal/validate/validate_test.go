@@ -15,20 +15,20 @@ func TestValidRequest(t *testing.T) {
 	When("IP is whitelisted")
 	And("Authorization is correct")
 	Then("valid request")
-	Assert(validRequest("127.0.0.3", "foo", c), true, t)
+	Assert(ValidRequest("127.0.0.3", "foo", c), true, t)
 
 	When("IP is NOT whitelisted")
 	And("Authorization is correct")
 	Then("invalid request")
-	Assert(validRequest("nope", "foo", c), false, t)
+	Assert(ValidRequest("nope", "foo", c), false, t)
 
 	When("IP is whitelisted")
 	And("Authorization is NOT correct")
 	Then("invalid request")
-	Assert(validRequest("127.0.0.3", "nope", c), false, t)
+	Assert(ValidRequest("127.0.0.3", "nope", c), false, t)
 
 	When("IP is NOT whitelisted")
 	And("Authorization is NOT correct")
 	Then("invalid request")
-	Assert(validRequest("nope", "nope", c), false, t)
+	Assert(ValidRequest("nope", "nope", c), false, t)
 }
