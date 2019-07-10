@@ -1,26 +1,43 @@
 package sshd
 
 import (
+	"crypto/md5"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"regexp"
 	"strings"
 )
 
 const SSHD_CONFIG = "/etc/ssh/sshd_config"
 
+// Updates the sshd_config PermitRootLogin setting with argument "s"
+// if /etc/ssh/sshd_config is changed, restart the sshd service.
 func PermitRootLogin(s string) (err error) {
 	if err := validateSetting(s); err != nil {
 		return err
 	}
+
 	cfg, err := readConfig()
 
 	if err != nil {
 		return err
 	}
-	err = writeConfig(generateConfig(s, string(cfg)))
+
+	origMd5 := checksum(cfg)
+	newConfig := generateConfig(s, string(cfg))
+	newMd5 := checksum([]byte(newConfig))
+
+	if err := writeConfig(newConfig); err != nil {
+		return err
+	}
+
+	if newMd5 != origMd5 {
+		err = restart()
+	}
+
 	return err
 }
 
@@ -68,4 +85,18 @@ func generateConfig(m, cfg string) string {
 	}
 
 	return strings.Join(lines, "\n")
+}
+
+func checksum(data []byte) string {
+	return fmt.Sprintf("%x", md5.Sum(data))
+}
+
+// Don't restart sshd agent unless ConfigPath is /etc/ssh/sshd_config (SSHD_CONFIG)
+func restart() (err error) {
+	if getConfigPath() == SSHD_CONFIG {
+		cmd := exec.Command("service", "sshd", "restart")
+		err = cmd.Run()
+	}
+
+	return err
 }

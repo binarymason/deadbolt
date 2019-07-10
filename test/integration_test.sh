@@ -2,8 +2,6 @@
 
 set -e
 
-pwd
-
 test_secret=foo
 test_sshd_config=/tmp/test_sshd_config
 url=localhost:8080
