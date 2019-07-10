@@ -58,21 +58,14 @@ func writeConfig(cfg string) error {
 
 func generateConfig(m, cfg string) string {
 	lines := strings.Split(cfg, "\n")
-	var result []string
-	for _, line := range lines {
-		result = append(result, updatePermitRootLogin(m, line))
+	for idx, line := range lines {
+		setting := "PermitRootLogin"
+		match, _ := regexp.Match(`^#?PermitRootLogin`, []byte(line))
+
+		if match {
+			lines[idx] = fmt.Sprintf("%s %s", setting, m)
+		}
 	}
 
-	return strings.Join(result, "\n")
-}
-
-func updatePermitRootLogin(m, s string) string {
-	setting := "PermitRootLogin"
-	match, _ := regexp.Match(`^#?PermitRootLogin`, []byte(s))
-
-	if !match {
-		return s
-	}
-
-	return fmt.Sprintf("%s %s", setting, m)
+	return strings.Join(lines, "\n")
 }
