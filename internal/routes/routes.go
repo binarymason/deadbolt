@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/binarymason/deadbolt/internal/config"
+	"github.com/binarymason/deadbolt/internal/sshd"
 	"github.com/binarymason/deadbolt/internal/validate"
 )
 
@@ -41,6 +42,14 @@ func (rtr *Router) Deadbolt(w http.ResponseWriter, r *http.Request) {
 	if !validate.ValidRequest(rq.ip, rq.auth, rtr.Config) {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
+	}
+
+	switch rq.path {
+
+	case "/lock":
+		sshd.PermitRootLogin("no")
+	case "/unlock":
+		sshd.PermitRootLogin("without-password")
 	}
 
 	w.WriteHeader(http.StatusCreated)

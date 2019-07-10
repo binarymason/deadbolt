@@ -5,17 +5,24 @@ set -e
 pwd
 
 test_secret=foo
+test_sshd_config=/tmp/test_sshd_config
 url=localhost:8080
 
 setup() {
   go install
+
+  cp ./testdata/commented_locked_sshd_config  "$test_sshd_config"
   echo "# starting deadbolt..."
-  DEADBOLT_SECRET="$test_secret" deadbolt -c ./testdata/simple_deadbolt_config.yml &>/dev/null &
+
+  DEADBOLT_SSHD_CONFIG="$test_sshd_config" \
+    DEADBOLT_SECRET="$test_secret" \
+    deadbolt -c ./testdata/simple_deadbolt_config.yml &>/dev/null &
   sleep 3
 }
 
 fail() {
-  echo "FAIL! $*"
+  echo "!!! $*"
+  echo "FAIL"
   exit 1
 }
 
@@ -24,7 +31,7 @@ ok() {
 }
 
 cleanup() {
-  echo "# killing server"
+  rm "$test_sshd_config"
   pkill -f "deadbolt"
 }
 trap cleanup EXIT
@@ -37,42 +44,70 @@ curl -f "$url"
 ok
 
 
+assert_status_code() {
+  local expected_code="$1"
+  local status_code
+
+  status_code=$(curl -sw '%{http_code}' "${@:2}" | tail -n 1)
+  if [ "$status_code" != "$expected_code" ]; then
+    fail "expected status code to be $expected_code but got $status_code"
+  fi
+
+}
+
 echo "# test 404 endpoint"
-status_code=$(curl -sw '%{http_code}' "$url/fooobar" | tail -n 1)
-if [ "$status_code" != "404" ]; then
-  fail "expected status code for an unknown endpoint to be 404 but got $status_code"
-fi
+assert_status_code 404 "$url/foobar"
 ok
 
 
 echo "# test unauthorized /lock"
-status_code=$(curl -sw '%{http_code}' -XPOST "$url/lock" | tail -n 1)
-if [ "$status_code" != "401" ]; then
-  fail "expected status code to be 401 but got $status_code"
-fi
+assert_status_code 401 -XPOST "$url/lock"
 ok
 
 echo "# test unauthorized /unlock"
-status_code=$(curl -sw '%{http_code}' -XPOST "$url/unlock" | tail -n 1)
-if [ "$status_code" != "401" ]; then
-  fail "expected status code to be 401 but got $status_code"
-fi
+assert_status_code 401 -XPOST "$url/unlock"
 ok
 
+assert_setting() {
+  local setting
+  local actual
+
+  setting="$1"
+  actual=$(grep -E '^#?PermitRootLogin' "$test_sshd_config")
+  if ! echo "$actual" | grep -E "^PermitRootLogin $setting" >/dev/null; then
+    fail "expected $setting but got: $actual"
+  fi
+}
+
+configs=(
+commented_locked_sshd_config
+commented_unlocked_sshd_config
+locked_sshd_config
+simple_locked_sshd_config
+simple_unlocked_sshd_config
+unlocked_sshd_config
+)
+
+with_config() {
+  local config="$1"
+  echo -e "\t+ with $config"
+  cp "./testdata/$config" "$test_sshd_config"
+}
+
 echo "# test /lock"
-status_code=$(curl -sw '%{http_code}' -XPOST -H "Authorization: $test_secret" "$url/lock" | tail -n 1)
-if [ "$status_code" != "201" ]; then
-  fail "expected status code to be 201 but got $status_code"
-fi
+for c in "${configs[@]}"; do
+  with_config "$c"
+  assert_status_code 201 -XPOST -H "Authorization: $test_secret" "$url/lock"
+  assert_setting no
+done
 ok
 
 echo "# test /unlock"
-status_code=$(curl -sw '%{http_code}' -XPOST -H "Authorization: $test_secret" "$url/unlock" | tail -n 1)
-if [ "$status_code" != "201" ]; then
-  fail "expected status code to be 201 but got $status_code"
-fi
+for c in "${configs[@]}"; do
+  with_config "$c"
+  assert_status_code 201 -XPOST -H "Authorization: $test_secret" "$url/unlock"
+  assert_setting without-password
+done
 ok
-
-# TODO: when writing to files, test that it actually worked :)
 
 echo "PASS"
