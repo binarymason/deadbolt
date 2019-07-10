@@ -6,7 +6,6 @@ import (
 
 	"github.com/binarymason/deadbolt/internal/config"
 	"github.com/binarymason/deadbolt/internal/sshd"
-	"github.com/binarymason/deadbolt/internal/validate"
 )
 
 type Router struct {
@@ -39,7 +38,7 @@ func (rtr *Router) Deadbolt(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !validate.ValidRequest(rq.ip, rq.auth, rtr.Config) {
+	if !rq.isValid(&rtr.Config) {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
@@ -70,4 +69,22 @@ func parseRequest(r *http.Request) *request {
 	}
 
 	return &rq
+}
+
+func (rq *request) isValid(cfg *config.Config) bool {
+	return validIP(rq.ip, cfg.Whitelisted) && validAuth(rq.auth, cfg.Secret)
+}
+
+func validIP(ip string, whitelisted []string) bool {
+	for _, w := range whitelisted {
+		if ip == w {
+			return true
+		}
+	}
+
+	return false
+}
+
+func validAuth(a, s string) bool {
+	return a == s
 }

@@ -26,20 +26,16 @@ func New(p *string) *Server {
 	return &s
 }
 
-func (s *Server) Serve() {
-	router := &s.router
+func (s *Server) Serve() error {
+	http.HandleFunc("/", s.router.Default)
+	http.HandleFunc("/unlock", s.router.Deadbolt)
+	http.HandleFunc("/lock", s.router.Deadbolt)
 
-	http.HandleFunc("/", router.Default)
-	http.HandleFunc("/unlock", router.Deadbolt)
-	http.HandleFunc("/lock", router.Deadbolt)
-
-	port := router.Port()
+	port := s.router.Port()
 
 	fmt.Println("listening on port", port)
 
-	if err := http.ListenAndServe(port, logRequest(http.DefaultServeMux)); err != nil {
-		panic(err)
-	}
+	return http.ListenAndServe(port, logRequest(http.DefaultServeMux))
 }
 
 type loggingResponseWriter struct {

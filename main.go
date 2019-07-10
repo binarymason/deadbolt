@@ -17,5 +17,7 @@ func init() {
 }
 
 func main() {
-	s.Serve()
+	if err := s.Serve(); err != nil {
+		panic(err)
+	}
 }
