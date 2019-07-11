@@ -11,13 +11,20 @@ import (
 const defaultSSHDConfig = "/etc/ssh/sshd_config"
 const defaultPort = "8080"
 
+func (d *Deadbolt) loadConfig() {
+	d.setDefaults()
+	d.unmarshalConfig()
+	d.setOverrides()
+	d.validate()
+}
+
 func (d *Deadbolt) setDefaults() {
 	d.SSHDConfigPath = defaultSSHDConfig
 	d.Port = defaultPort
 }
 
-func (d *Deadbolt) loadConfig() {
-	yamlFile, err := ioutil.ReadFile(d.path)
+func (d *Deadbolt) unmarshalConfig() {
+	yamlFile, err := ioutil.ReadFile(d.Path)
 	if err != nil {
 		panic(fmt.Sprintf("yamlFile.Get err   #%v ", err))
 	}

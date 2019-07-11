@@ -48,6 +48,7 @@ func (sshd *sshdHandler) restart() (err error) {
 		return nil
 	}
 
+	// This expects that deadbolt currently has root privileges.
 	cmd := exec.Command("service", "sshd", "restart")
 	return cmd.Run()
 }

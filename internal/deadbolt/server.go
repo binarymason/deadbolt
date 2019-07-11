@@ -23,6 +23,15 @@ func (dblt *Deadbolt) defaultHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Deadbolt version: " + Version() + "\n"))
 }
 
+// sshdHandler updates a hosts sshd_config. Valid requests must meet this criteria:
+//   * IP address is whitelisted in deadbolt.yml
+//   * "Authorization: <secret>" must match deadbolt secret.
+//
+// The deadbolt secret is specified in deadbolt.yml or DEADBOLT_SECRET environment variable
+//
+// Handled routes:
+// "/lock"   -> changes PermitRootLogin to "PermitRootLogin no"
+// "/unlock" -> changes PermitRootLogin to "PermitRootLogin without-password"
 func (dblt *Deadbolt) sshdHandler(w http.ResponseWriter, r *http.Request) {
 	rq := parseRequest(r)
 	if r.Method != http.MethodPost {
