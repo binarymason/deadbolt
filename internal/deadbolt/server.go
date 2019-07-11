@@ -1,64 +1,56 @@
-package routes
+package deadbolt
 
 import (
+	"fmt"
+	"log"
 	"net/http"
 	"strings"
-
-	"github.com/binarymason/deadbolt/internal/config"
-	"github.com/binarymason/deadbolt/internal/sshd"
 )
 
-type Router struct {
-	Config  config.Config
-	Version string
+type request struct {
+	ip   string
+	auth string
+	path string
 }
 
-func (rtr *Router) Port() string {
-	p := "8080"
-	if rtr.Config.Port != "" {
-		p = rtr.Config.Port
-	}
-	return ":" + p
-}
-
-func (rtr *Router) Default(w http.ResponseWriter, r *http.Request) {
+func (dblt *Deadbolt) defaultHandler(w http.ResponseWriter, r *http.Request) {
 	rq := parseRequest(r)
 
 	if rq.path != "/" {
 		http.Error(w, "invalid route", http.StatusNotFound)
 		return
 	}
-	w.Write([]byte("Deadbolt version: " + rtr.Version + "\n"))
+	w.Write([]byte("Deadbolt version: " + Version() + "\n"))
 }
 
-func (rtr *Router) Deadbolt(w http.ResponseWriter, r *http.Request) {
+func (dblt *Deadbolt) sshdHandler(w http.ResponseWriter, r *http.Request) {
 	rq := parseRequest(r)
 	if r.Method != http.MethodPost {
 		http.Error(w, "invalid HTTP method. expected POST", http.StatusBadRequest)
 		return
 	}
 
-	if !rq.isValid(&rtr.Config) {
+	if !dblt.authorizedRequest(rq) {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
-	switch rq.path {
+	permitRootLoginSetting := "no"
 
-	case "/lock":
-		sshd.PermitRootLogin("no")
-	case "/unlock":
-		sshd.PermitRootLogin("without-password")
+	if rq.path == "/unlock" {
+		permitRootLoginSetting = "without-password"
+
+	}
+
+	if err := dblt.PermitRootLogin(permitRootLoginSetting); err != nil {
+		errMessage := fmt.Sprintf("PermitRootLogin setting change failed: %v", err)
+		log.Fatal(errMessage)
+		http.Error(w, errMessage, http.StatusInternalServerError)
+		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte(rq.path + "\n"))
-}
-
-type request struct {
-	ip   string
-	auth string
-	path string
 }
 
 func parseRequest(r *http.Request) *request {
@@ -71,8 +63,8 @@ func parseRequest(r *http.Request) *request {
 	return &rq
 }
 
-func (rq *request) isValid(cfg *config.Config) bool {
-	return validIP(rq.ip, cfg.Whitelisted) && validAuth(rq.auth, cfg.Secret)
+func (dblt *Deadbolt) authorizedRequest(r *request) bool {
+	return validIP(r.ip, dblt.Whitelisted) && validAuth(r.auth, dblt.Secret)
 }
 
 func validIP(ip string, whitelisted []string) bool {

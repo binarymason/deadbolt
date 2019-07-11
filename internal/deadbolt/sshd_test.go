@@ -1,4 +1,4 @@
-package sshd
+package deadbolt
 
 import (
 	"testing"
@@ -93,12 +93,12 @@ booger
 	Assert(r, x, t)
 }
 
-func TestChecksum(t *testing.T) {
+func TestMd5sum(t *testing.T) {
 	Given("a string as an argument")
 	Then("it returns the md5 checksum")
 
 	// echo -n foobar | md5sum
 	x := "3858f62230ac3c915f300c664312c63f"
-	r := checksum([]byte("foobar"))
+	r := md5sum([]byte("foobar"))
 	Assert(r, x, t)
 }

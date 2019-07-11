@@ -1,48 +1,16 @@
-package server
+package deadbolt
 
 import (
-	"fmt"
 	"log"
 	"net/http"
-
-	"github.com/binarymason/deadbolt/internal/config"
-	"github.com/binarymason/deadbolt/internal/routes"
 )
-
-const DEADBOLT_VERSION = "201907081400"
-
-type Server struct {
-	router routes.Router
-}
-
-func New(p *string) *Server {
-	s := Server{}
-
-	s.router = routes.Router{
-		Version: DEADBOLT_VERSION,
-		Config:  config.Load(*p),
-	}
-
-	return &s
-}
-
-func (s *Server) Serve() error {
-	http.HandleFunc("/", s.router.Default)
-	http.HandleFunc("/unlock", s.router.Deadbolt)
-	http.HandleFunc("/lock", s.router.Deadbolt)
-
-	port := s.router.Port()
-
-	fmt.Println("listening on port", port)
-
-	return http.ListenAndServe(port, logRequest(http.DefaultServeMux))
-}
 
 type loggingResponseWriter struct {
 	http.ResponseWriter
 	statusCode int
 }
 
+// TODO: unexport
 func NewLoggingResponseWriter(w http.ResponseWriter) *loggingResponseWriter {
 	return &loggingResponseWriter{w, http.StatusOK}
 }

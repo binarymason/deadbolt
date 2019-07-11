@@ -1,4 +1,4 @@
-package config
+package deadbolt
 
 import (
 	"os"
@@ -10,7 +10,7 @@ import (
 func TestLoad(t *testing.T) {
 	var (
 		p string
-		r Config
+		r *Config
 	)
 
 	p = "../../testdata/simple_deadbolt_config.yml"
@@ -23,6 +23,9 @@ func TestLoad(t *testing.T) {
 	Assert(r.Secret, "supersecret", t)
 	Assert(r.Whitelisted[0], "127.0.0.1", t)
 	Assert(r.Whitelisted[1], "127.0.0.2", t)
+
+	And("SSHDConfigPath defaults to /etc/ssh/sshd_config")
+	Assert(r.SSHDConfigPath, "/etc/ssh/sshd_config", t)
 
 	When("DEADBOLT_SECRET is an environment variable")
 	Then("environment variable takes precedence")

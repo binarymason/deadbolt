@@ -3,21 +3,19 @@ package main
 import (
 	"flag"
 
-	"github.com/binarymason/deadbolt/internal/server"
+	"github.com/binarymason/deadbolt/internal/deadbolt"
 )
 
-var s *server.Server
+var config *string
 
-// Load the deadbolt.yml config file.
-// If a file path is not specified, defaults to /etc/deadbolt/deadbolt.yml
 func init() {
-	c := flag.String("c", "/etc/deadbolt/deadbolt.yml", "Specify deadbolt.yml file")
+	config = flag.String("c", "/etc/deadbolt/deadbolt.yml", "Specify deadbolt.yml file")
 	flag.Parse()
-	s = server.New(c)
 }
 
 func main() {
-	if err := s.Serve(); err != nil {
+	dblt := deadbolt.New(*config)
+	if err := dblt.Listen(); err != nil {
 		panic(err)
 	}
 }
