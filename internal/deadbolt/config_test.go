@@ -13,7 +13,7 @@ func TestLoad(t *testing.T) {
 		r *Deadbolt
 	)
 
-	p = "../../testdata/simple_deadbolt_config.yml"
+	p = "../../test/testdata/simple_deadbolt_config.yml"
 
 	Given("a deadbolt config file")
 	Then("values are parsed correctly")
@@ -37,7 +37,7 @@ func TestLoad(t *testing.T) {
 
 	When("deadbolt_secret is NOT in config file")
 	And("DEADBOLT_SECRET is an environment variable")
-	p = "../../testdata/missing_secret_deadbolt_config.yml"
+	p = "../../test/testdata/missing_secret_deadbolt_config.yml"
 	os.Setenv("DEADBOLT_SECRET", "bar")
 	r = New(p)
 	Assert(r.Secret, "bar", t)

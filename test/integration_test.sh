@@ -6,12 +6,12 @@ test_secret=foo
 test_sshd_config=/tmp/test_sshd_config
 url=localhost:8080
 
-cmd="deadbolt -c ./testdata/simple_deadbolt_config.yml"
+cmd="deadbolt -c ./test/testdata/simple_deadbolt_config.yml"
 
 setup() {
   go install ./cmd/deadbolt/deadbolt.go
 
-  cp ./testdata/commented_locked_sshd_config  "$test_sshd_config"
+  cp ./test/testdata/commented_locked_sshd_config  "$test_sshd_config"
   echo "# starting deadbolt..."
 
 
@@ -92,7 +92,7 @@ unlocked_sshd_config
 with_config() {
   local config="$1"
   echo -e "\t+ with $config"
-  cp "./testdata/$config" "$test_sshd_config"
+  cp "./test/testdata/$config" "$test_sshd_config"
 }
 
 echo "# test /lock"
