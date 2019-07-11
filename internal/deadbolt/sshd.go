@@ -43,16 +43,6 @@ func (sshd *sshdHandler) PermitRootLogin(setting string) (err error) {
 	return nil
 }
 
-func (sshd *sshdHandler) restart() (err error) {
-	if !sshd.restartAllowed {
-		return nil
-	}
-
-	// This expects that deadbolt currently has root privileges.
-	cmd := exec.Command("service", "sshd", "restart")
-	return cmd.Run()
-}
-
 func validateSetting(s string) (err error) {
 	valid := false
 	for _, x := range []string{"yes", "no", "without-password"} {
@@ -74,6 +64,16 @@ func (sshd *sshdHandler) read() ([]byte, error) {
 
 func (sshd *sshdHandler) write(c []byte) error {
 	return ioutil.WriteFile(sshd.config, c, 0644)
+}
+
+func (sshd *sshdHandler) restart() (err error) {
+	if !sshd.restartAllowed {
+		return nil
+	}
+
+	// This expects that deadbolt currently has root privileges.
+	cmd := exec.Command("service", "sshd", "restart")
+	return cmd.Run()
 }
 
 func generateConfig(m string, c []byte) []byte {
