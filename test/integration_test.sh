@@ -9,7 +9,7 @@ url=localhost:8080
 cmd="deadbolt -c ./testdata/simple_deadbolt_config.yml"
 
 setup() {
-  go install
+  go install ./cmd/deadbolt/deadbolt.go
 
   cp ./testdata/commented_locked_sshd_config  "$test_sshd_config"
   echo "# starting deadbolt..."
