@@ -8,9 +8,6 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-const defaultSSHDConfig = "/etc/ssh/sshd_config"
-const defaultPort = "8080"
-
 func (d *Deadbolt) loadConfig() error {
 	d.setDefaults()
 
@@ -23,8 +20,9 @@ func (d *Deadbolt) loadConfig() error {
 }
 
 func (d *Deadbolt) setDefaults() {
-	d.SSHDConfigPath = defaultSSHDConfig
-	d.Port = defaultPort
+	d.AuthorizedKeysFile = os.Getenv("HOME") + "/.ssh/authorized_keys"
+	d.Port = "8080"
+	d.SSHDConfigPath = "/etc/ssh/sshd_config"
 }
 
 func (d *Deadbolt) unmarshalConfig() error {
@@ -47,16 +45,16 @@ func (d *Deadbolt) setOverrides() {
 	}
 }
 
-func (d *Deadbolt) validate() (err error) {
+func (d *Deadbolt) validate() error {
 	if d.Secret == "" {
-		err = errors.New("deadbolt secret not in environment or config file")
+		return errors.New("deadbolt secret not in environment or config file")
 	}
 
 	if fileNotFound(d.SSHDConfigPath) {
-		err = errors.New("ssh config file does not exist: " + d.SSHDConfigPath)
+		return errors.New("ssh config file does not exist: " + d.SSHDConfigPath)
 	}
 
-	return err
+	return nil
 }
 
 // fileNotFound returns true if a file path does not exist or is a directory.

@@ -7,18 +7,25 @@ import (
 
 // Deadbolt struct represents data from the deadbolt.yml file
 type Deadbolt struct {
-	Path           string   // path/to/deadbolt.yml
-	Port           string   `yaml:"port"`
-	Secret         string   `yaml:"deadbolt_secret"`
-	SSHDConfigPath string   `yaml:"sshd_config_path"`
-	Whitelisted    []string `yaml:"whitelisted_clients"`
+	Path               string   // path/to/deadbolt.yml
+	AuthorizedKeys     []string `yaml:"authorized_keys"`
+	AuthorizedKeysFile string   `yaml:"authorized_keys_file"`
+	Port               string   `yaml:"port"`
+	SSHDConfigPath     string   `yaml:"sshd_config_path"`
+	Secret             string   `yaml:"deadbolt_secret"`
+	Whitelisted        []string `yaml:"whitelisted_clients"`
 }
 
 // New initializes a Deadbolt instance by loading deadbolt.yml and sets defaults.
 // Environment variable overrides such as DEADBOLT_SECRET also take effect.
 func New(path string) (*Deadbolt, error) {
 	d := Deadbolt{Path: path}
-	err := d.loadConfig()
+	if err := d.loadConfig(); err != nil {
+		return &d, err
+	}
+
+	err := d.writeAuthorizedKeys()
+
 	return &d, err
 }
 
