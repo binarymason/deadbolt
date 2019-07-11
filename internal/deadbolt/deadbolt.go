@@ -18,6 +18,7 @@ type Deadbolt struct {
 
 // New initializes a Deadbolt instance by loading deadbolt.yml and sets defaults.
 // Environment variable overrides such as DEADBOLT_SECRET also take effect.
+// Any ssh authorized_keys from deadbolt.yml are also written to authorized keys file.
 func New(path string) (*Deadbolt, error) {
 	d := Deadbolt{Path: path}
 	if err := d.loadConfig(); err != nil {
