@@ -37,7 +37,7 @@ PermitRootLogin no
 booger
 `
 
-	r = generateConfig(m, cfg)
+	r = string(generateConfig(m, []byte(cfg)))
 	Assert(r, x, t)
 
 	When("PermitRootLogin is already no")
@@ -50,7 +50,7 @@ baz bang
 PermitRootLogin yes
 booger
 `
-	r = generateConfig(m, cfg)
+	r = string(generateConfig(m, []byte(cfg)))
 	Assert(r, x, t)
 
 	Given("'without-password' and lines of text")
@@ -75,7 +75,7 @@ baz bang
 PermitRootLogin without-password
 booger
 `
-	r = generateConfig(m, cfg)
+	r = string(generateConfig(m, []byte(cfg)))
 	Assert(r, x, t)
 
 	When("PermitRootLogin is already without-password")
@@ -89,7 +89,7 @@ baz bang
 PermitRootLogin without-password
 booger
 `
-	r = generateConfig(m, cfg)
+	r = string(generateConfig(m, []byte(cfg)))
 	Assert(r, x, t)
 }
 

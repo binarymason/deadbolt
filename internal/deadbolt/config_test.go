@@ -10,7 +10,7 @@ import (
 func TestLoad(t *testing.T) {
 	var (
 		p string
-		r *Config
+		r *Deadbolt
 	)
 
 	p = "../../testdata/simple_deadbolt_config.yml"
@@ -18,7 +18,7 @@ func TestLoad(t *testing.T) {
 	Given("a deadbolt config file")
 	Then("values are parsed correctly")
 
-	r = Load(p)
+	r = New(p)
 
 	Assert(r.Secret, "supersecret", t)
 	Assert(r.Whitelisted[0], "127.0.0.1", t)
@@ -31,7 +31,7 @@ func TestLoad(t *testing.T) {
 	Then("environment variable takes precedence")
 
 	os.Setenv("DEADBOLT_SECRET", "foo")
-	r = Load(p)
+	r = New(p)
 	Assert(r.Secret, "foo", t)
 	os.Setenv("DEADBOLT_SECRET", "") // teardown
 
@@ -39,7 +39,7 @@ func TestLoad(t *testing.T) {
 	And("DEADBOLT_SECRET is an environment variable")
 	p = "../../testdata/missing_secret_deadbolt_config.yml"
 	os.Setenv("DEADBOLT_SECRET", "bar")
-	r = Load(p)
+	r = New(p)
 	Assert(r.Secret, "bar", t)
 	os.Setenv("DEADBOLT_SECRET", "") // teardown
 
@@ -52,5 +52,5 @@ func TestLoad(t *testing.T) {
 		}
 	}()
 
-	r = Load(p)
+	r = New(p)
 }

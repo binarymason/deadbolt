@@ -6,15 +6,18 @@ test_secret=foo
 test_sshd_config=/tmp/test_sshd_config
 url=localhost:8080
 
+cmd="deadbolt -c ./testdata/simple_deadbolt_config.yml"
+
 setup() {
   go install
 
   cp ./testdata/commented_locked_sshd_config  "$test_sshd_config"
   echo "# starting deadbolt..."
 
+
   DEADBOLT_SSHD_CONFIG="$test_sshd_config" \
     DEADBOLT_SECRET="$test_secret" \
-    deadbolt -c ./testdata/simple_deadbolt_config.yml &>/dev/null &
+    eval "$cmd" &>/dev/null &
   sleep 3
 }
 
@@ -30,7 +33,7 @@ ok() {
 
 cleanup() {
   rm "$test_sshd_config"
-  pkill -f "deadbolt"
+  pkill -f "$cmd"
 }
 trap cleanup EXIT
 

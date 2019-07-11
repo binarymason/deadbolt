@@ -28,7 +28,7 @@ func (dblt *Deadbolt) Listen() error {
 	http.HandleFunc("/lock", dblt.sshdHandler)
 
 	fmt.Println("listening on port", dblt.Port)
-	return http.ListenAndServe(dblt.Port, logRequest(http.DefaultServeMux))
+	return http.ListenAndServe(":"+dblt.Port, logRequest(http.DefaultServeMux))
 }
 
 func (dblt *Deadbolt) PermitRootLogin(setting string) error {
