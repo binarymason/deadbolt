@@ -58,6 +58,7 @@ func validateSetting(s string) (err error) {
 	for _, x := range []string{"yes", "no", "without-password"} {
 		if s == x {
 			valid = true
+			break
 		}
 	}
 	if !valid {
