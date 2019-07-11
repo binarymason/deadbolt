@@ -16,10 +16,10 @@ type Deadbolt struct {
 
 // New initializes a Deadbolt instance by loading deadbolt.yml and sets defaults.
 // Environment variable overrides such as DEADBOLT_SECRET also take effect.
-func New(path string) *Deadbolt {
+func New(path string) (*Deadbolt, error) {
 	d := Deadbolt{Path: path}
-	d.loadConfig()
-	return &d
+	err := d.loadConfig()
+	return &d, err
 }
 
 // Listen starts the deadbolt server.  The Deadbolt handler is responsible
@@ -40,5 +40,6 @@ func (dblt *Deadbolt) PermitRootLogin(setting string) error {
 		config:         dblt.SSHDConfigPath,
 		restartAllowed: dblt.SSHDConfigPath == "/etc/ssh/sshd_config",
 	}
+
 	return sshd.PermitRootLogin(setting)
 }

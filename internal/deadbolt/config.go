@@ -1,7 +1,7 @@
 package deadbolt
 
 import (
-	"fmt"
+	"errors"
 	"io/ioutil"
 	"os"
 
@@ -11,11 +11,15 @@ import (
 const defaultSSHDConfig = "/etc/ssh/sshd_config"
 const defaultPort = "8080"
 
-func (d *Deadbolt) loadConfig() {
+func (d *Deadbolt) loadConfig() error {
 	d.setDefaults()
-	d.unmarshalConfig()
+
+	if err := d.unmarshalConfig(); err != nil {
+		return err
+	}
+
 	d.setOverrides()
-	d.validate()
+	return d.validate()
 }
 
 func (d *Deadbolt) setDefaults() {
@@ -23,15 +27,12 @@ func (d *Deadbolt) setDefaults() {
 	d.Port = defaultPort
 }
 
-func (d *Deadbolt) unmarshalConfig() {
+func (d *Deadbolt) unmarshalConfig() error {
 	yamlFile, err := ioutil.ReadFile(d.Path)
 	if err != nil {
-		panic(fmt.Sprintf("yamlFile.Get err   #%v ", err))
+		return err
 	}
-	err = yaml.Unmarshal(yamlFile, &d)
-	if err != nil {
-		panic(fmt.Sprintf("Unmarshal: %v", err))
-	}
+	return yaml.Unmarshal(yamlFile, &d)
 }
 
 func (d *Deadbolt) setOverrides() {
@@ -46,8 +47,23 @@ func (d *Deadbolt) setOverrides() {
 	}
 }
 
-func (d *Deadbolt) validate() {
+func (d *Deadbolt) validate() (err error) {
 	if d.Secret == "" {
-		panic("Fatal: deadbolt secret not in environment or config file.")
+		err = errors.New("deadbolt secret not in environment or config file")
 	}
+
+	if fileNotFound(d.SSHDConfigPath) {
+		err = errors.New("ssh config file does not exist: " + d.SSHDConfigPath)
+	}
+
+	return err
+}
+
+// fileNotFound returns true if a file path does not exist or is a directory.
+func fileNotFound(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return true
+	}
+	return info.IsDir()
 }

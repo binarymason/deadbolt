@@ -18,7 +18,7 @@ func TestLoad(t *testing.T) {
 	Given("a deadbolt config file")
 	Then("values are parsed correctly")
 
-	r = New(p)
+	r, _ = New(p)
 
 	Assert(r.Secret, "supersecret", t)
 	Assert(r.Whitelisted[0], "127.0.0.1", t)
@@ -31,7 +31,7 @@ func TestLoad(t *testing.T) {
 	Then("environment variable takes precedence")
 
 	os.Setenv("DEADBOLT_SECRET", "foo")
-	r = New(p)
+	r, _ = New(p)
 	Assert(r.Secret, "foo", t)
 	os.Setenv("DEADBOLT_SECRET", "") // teardown
 
@@ -39,18 +39,16 @@ func TestLoad(t *testing.T) {
 	And("DEADBOLT_SECRET is an environment variable")
 	p = "../../test/testdata/missing_secret_deadbolt_config.yml"
 	os.Setenv("DEADBOLT_SECRET", "bar")
-	r = New(p)
+	r, _ = New(p)
 	Assert(r.Secret, "bar", t)
 	os.Setenv("DEADBOLT_SECRET", "") // teardown
 
 	When("deadbolt_secret is NOT in config file")
 	And("DEADBOLT_SECRET is NOT an environment variable")
-	Then("panic")
-	defer func() {
-		if recover() == nil {
-			t.Fatal("expected a panic, but received none")
-		}
-	}()
+	Then("an error is returned")
+	_, err := New(p)
 
-	r = New(p)
+	if err == nil {
+		t.Fatal("expected an error, but received none")
+	}
 }

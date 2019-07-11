@@ -52,10 +52,9 @@ func (dblt *Deadbolt) sshdHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := dblt.PermitRootLogin(permitRootLoginSetting); err != nil {
-		errMessage := fmt.Sprintf("PermitRootLogin setting change failed: %v\n", err)
-		log.Print("ERROR: ", errMessage)
+		errMessage := fmt.Sprintf("PermitRootLogin setting change failed: %v", err)
+		log.Println("ERROR: ", errMessage)
 
-		w.WriteHeader(http.StatusCreated)
 		http.Error(w, errMessage, http.StatusInternalServerError)
 		return
 	}

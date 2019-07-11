@@ -2,6 +2,8 @@ package main
 
 import (
 	"flag"
+	"log"
+	"os"
 
 	"github.com/binarymason/deadbolt/internal/deadbolt"
 )
@@ -14,8 +16,12 @@ func init() {
 }
 
 func main() {
-	dblt := deadbolt.New(*config)
-	if err := dblt.Listen(); err != nil {
-		panic(err)
+	dblt, err := deadbolt.New(*config)
+
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
 	}
+
+	dblt.Listen()
 }
