@@ -31,7 +31,4 @@ else
   banner
 fi
 
-echo "+ cleanup"
-rm -rf "/etc/deadbolt/init"
-
 echo "+ DONE"
