@@ -6,45 +6,31 @@
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # Short-Description: starts deadbolt
-# Description:       starts deadbolt using start-stop-daemon
+# Description:       starts deadbolt
 ### END INIT INFO
 
 DESC="deadbolt"
 NAME=deadbolt
 DAEMON=/usr/local/bin/deadbolt
 
-PIDFILE=/var/run/$NAME.pid
 LOGFILE=/var/log/$NAME.log
 CONFIGFILE=/etc/deadbolt/deadbolt.yml
 
-STOP_SCHEDULE="${STOP_SCHEDULE:-QUIT/5/TERM/5/KILL/5}"
-
-
 test -x $DAEMON || exit 0
-
-
-if [ -z "$DAEMONOPTS" ]; then
-    # daemon options
-    DAEMONOPTS="-c $CONFIGFILE"
-fi
-
-
 
 start() {
     touch $LOGFILE
-    start-stop-daemon --start --quiet --make-pidfile --pidfile $PIDFILE \
-        --background --oknodo --exec $DAEMON -- $DAEMONOPTS
+    exec "$DAEMON" -c "$CONFIGFILE"
 }
 
 stop() {
-    start-stop-daemon --stop --quiet --pidfile $PIDFILE --retry=$STOP_SCHEDULE \
-        --name $NAME --oknodo
-    rm -f $PIDFILE
+  pkill -f "$DAEMON"
 }
 
 reload() {
-    start-stop-daemon --stop --quiet --signal USR1 --pidfile $PIDFILE \
-        --name $NAME
+  echo "Reload not supported.  Restarting instead"
+  start
+  stop
 }
 
 status() {
@@ -74,7 +60,7 @@ case "$1" in
         start
     ;;
     reload)
-        echo "Reloading $NAME configuration"
+        echo "Reloading $NAME"
         reload
     ;;
     status)
