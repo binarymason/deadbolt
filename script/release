@@ -26,6 +26,9 @@ if [ "$dblt_version" != "$tag" ]; then
   exit 1
 fi
 
+echo "* cleaning any pre-existing build artifacts"
+rm -rf ./dist/*.deb  ./dist/*.rpm
+
 echo "* building rpm package"
 DEADBOLT_VERSION="$tag" nfpm pkg --target "./dist/deadbolt-$tag.rpm"
 
