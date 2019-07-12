@@ -16,9 +16,8 @@ if [ "$service_manager" = init ]; then
   banner
   echo "run the following to get started:"
   common_instructions
-  echo "$ systemctl daemon-reload"
-  echo "$ systemctl enable deadbolt"
-  echo "$ systemctl start deadbolt"
+  echo "$ chkconfig --add deadbolt"
+  echo "$ service deadbolt start"
   banner
 else
   echo "+ setting up systemd service"
@@ -26,8 +25,9 @@ else
   banner
   echo "run the following to get started:"
   common_instructions
-  echo "$ chkconfig --add deadbolt"
-  echo "$ service deadbolt start"
+  echo "$ systemctl daemon-reload"
+  echo "$ systemctl enable deadbolt"
+  echo "$ systemctl start deadbolt"
   banner
 fi
 
