@@ -1,0 +1,11 @@
+[Unit]
+Description=deadbolt
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=5s
+ExecStart=/usr/local/bin/deadbolt
+
+[Install]
+WantedBy=multi-user.target

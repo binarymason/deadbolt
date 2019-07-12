@@ -1,0 +1,24 @@
+name: "deadbolt"
+arch: "amd64"
+platform: "linux"
+version: "v${DEADBOLT_VERSION}"
+section: "default"
+priority: "extra"
+replaces:
+- deadbolt
+provides:
+- deadbolt
+maintainer: "John Mason <john@johnmason.io"
+homepage: "http://github.com/binarymason/deadbolt"
+license: "MIT"
+bindir: "/usr/local/bin"
+files:
+  ./dist/deadbolt: "/usr/local/bin/deadbolt"
+  ./dist/init: "/etc/deadbolt/init"
+config_files:
+  ./dist/deadbolt.yml: "/etc/deadbolt/deadbolt.yml"
+overrides:
+  rpm:
+    scripts:
+      postinstall: ./dist/scripts/postinstall.sh
+      postremove: ./dist/scripts/postremove.sh
