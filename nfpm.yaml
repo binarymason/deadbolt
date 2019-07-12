@@ -1,7 +1,7 @@
 name: "deadbolt"
 arch: "amd64"
 platform: "linux"
-version: "v${DEADBOLT_VERSION}"
+version: "${DEADBOLT_VERSION}"
 section: "default"
 priority: "extra"
 replaces:
@@ -14,11 +14,16 @@ license: "MIT"
 bindir: "/usr/local/bin"
 files:
   ./dist/deadbolt: "/usr/local/bin/deadbolt"
-  ./dist/init: "/etc/deadbolt/init"
+  ./dist/init/systemd/deadbolt.service: "/etc/deadbolt/init/systemd/deadbolt.service"
+  ./dist/init/sysvinit/deadbolt: "/etc/deadbolt/init/sysvinit/deadbolt"
 config_files:
   ./dist/deadbolt.yml: "/etc/deadbolt/deadbolt.yml"
 overrides:
   rpm:
+    scripts:
+      postinstall: ./dist/scripts/postinstall.sh
+      postremove: ./dist/scripts/postremove.sh
+  deb:
     scripts:
       postinstall: ./dist/scripts/postinstall.sh
       postremove: ./dist/scripts/postremove.sh

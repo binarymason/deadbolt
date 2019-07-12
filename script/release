@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+set -e
+
+branch=$(git rev-parse --abbrev-ref HEAD)
+
+if [ "$branch" != master ]; then
+  echo "! ERROR: not on master branch"
+  echo "! exiting..."
+  exit 1
+fi
+
+today=$(date +%y.%m.%d)
+tag="v$today"
+
+echo "* building go binary"
+version_path="github.com/binarymason/deadbolt/internal/deadbolt.Version"
+go build -ldflags "-X $version_path=$tag" -o ./dist/deadbolt cmd/deadbolt/deadbolt.go
+
+echo "* testing build version"
+dblt_version=$(./dist/deadbolt --version)
+if [ "$dblt_version" != "$tag" ]; then
+  echo "! ERROR: deadbolt version incorrect. Expected '$tag' but got '$dblt_version'"
+  echo "! exiting..."
+  exit 1
+fi
+
+echo "* building rpm package"
+DEADBOLT_VERSION="$tag" nfpm pkg --target "./dist/deadbolt-$tag.rpm"
+
+echo "* building rpm package"
+DEADBOLT_VERSION="$tag" nfpm pkg --target "./dist/deadbolt-$tag.deb"
+
+echo "* creating tag: $tag"
+git tag "$tag"
+
+echo "* pushing tag: $tag"
+git push origin "$tag"
+
+echo "* packages placed in ./dist"
+echo "* you are ready to make a release on GitHub."
+echo "* OK"

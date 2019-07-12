@@ -1,1 +1,3 @@
 dist/deadbolt
+*.rpm
+*.deb
