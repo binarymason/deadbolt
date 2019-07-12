@@ -10,8 +10,9 @@ if [ "$branch" != master ]; then
   exit 1
 fi
 
-today=$(date +%y.%m.%d)
-tag="v$today"
+# User calendar versioning instead of semantic.
+ts=$(TZ=America/New_York date '+%y.%m.%d-%H%M')
+tag="v$ts"
 
 echo "* building go binary"
 version_path="github.com/binarymason/deadbolt/internal/deadbolt.Version"

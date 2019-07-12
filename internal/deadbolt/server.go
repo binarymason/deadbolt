@@ -20,7 +20,7 @@ func (dblt *Deadbolt) defaultHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid route", http.StatusNotFound)
 		return
 	}
-	w.Write([]byte("Deadbolt version: " + GetVersion() + "\n"))
+	w.Write([]byte("Deadbolt " + GetVersion() + "\n"))
 }
 
 // sshdHandler updates a hosts sshd_config. Valid requests must meet this criteria:
