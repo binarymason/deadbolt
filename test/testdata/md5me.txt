@@ -1,2 +1,0 @@
-DO NOT CHANGE:
-I am a file that should be tested for md5 checksum
